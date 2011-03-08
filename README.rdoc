@@ -1,0 +1,17 @@
+= Knife BlueBox
+This is the official Opscode Knife plugin for BlueBox[http://www.bluebox.new].
+This plugin gives knife the ability to create, bootstrap, and manage BlueBox
+servers.
+
+== Installation
+This plugin is distributed as a Ruby Gem. To install it, run:
+  gem install knife-bluebox
+Depending on your system configuration, you may need to run this command with
+root privileges.
+
+== Configuration
+TODO
+
+== Usage
+TODO
+
