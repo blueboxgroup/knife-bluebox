@@ -1,5 +1,5 @@
 = Knife BlueBox
-This is the official Opscode Knife plugin for BlueBox[http://www.bluebox.new].
+This is the official Opscode Knife plugin for BlueBox[http://www.bluebox.net].
 This plugin gives knife the ability to create, bootstrap, and manage BlueBox
 servers.
 
