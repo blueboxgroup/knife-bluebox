@@ -16,14 +16,21 @@
 # limitations under the License.
 #
 
-require 'fog'
 require 'chef/knife'
-require 'chef/knife/bootstrap'
-require 'chef/json_compat'
 
 class Chef
   class Knife
     class BlueboxServerCreate < Knife
+
+      deps do
+        require 'chef/knife/bootstrap'
+        Chef::Knife::Bootstrap.load_deps
+        require 'fog'
+        require 'socket'
+        require 'net/ssh/multi'
+        require 'readline'
+        require 'chef/json_compat'
+      end
 
       banner "knife bluebox server create [RUN LIST...] (options)"
 
@@ -33,7 +40,7 @@ class Chef
         :description => "The flavor of server",
         :default => "94fd37a7-2606-47f7-84d5-9000deda52ae"
 
-        option :chef_node_name,
+      option :chef_node_name,
         :short => "-N NAME",
         :long => "--node-name NAME",
         :description => "The Chef node name for your new node"
@@ -101,11 +108,11 @@ class Chef
         server_args = {
           :flavor_id => config[:flavor],
           :image_id => config[:image],
-          :user => config[:username],
+          :username => config[:username],
           :password => config[:password],
           :lb_applications => config[:load_balancer]
           }
-        server_args[:ssh_key] = Chef::Config[:knife][:ssh_key] if Chef::Config[:knife][:ssh_key]
+        server_args[:public_key] = Chef::Config[:knife][:ssh_key] if Chef::Config[:knife][:ssh_key]
 
         server = bluebox.servers.new(server_args)
         response = server.save
@@ -121,6 +128,7 @@ class Chef
           puts "#{h.color("Flavor", :cyan)}: #{flavors[server.flavor_id]}"
           puts "#{h.color("Image", :cyan)}: #{images[server.image_id]}"
           puts "#{h.color("IP Address", :cyan)}: #{server.ips[0]['address']}"
+          puts "#{h.color("Load Balanced Applications", :cyan)}: #{server.lb_applications.collect { |x| x['lb_application_name'] }.join(", ")}" unless server.lb_applications.empty?
 
           # The server was succesfully queued... Now wait for it to spin up...
           print "\n#{h.color("Requesting status of #{server.hostname}\n", :magenta)}"
