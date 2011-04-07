@@ -26,6 +26,13 @@ class Chef
   class Knife
     class BlueboxServerList < Knife
 
+      deps do
+        require 'fog'
+        require 'highline'
+        require 'readline'
+        require 'chef/json_compat'
+      end
+
       banner "knife bluebox server list (options)"
 
       def h
@@ -33,7 +40,8 @@ class Chef
       end
 
       def run
-        bluebox = Fog::Bluebox::Compute.new(
+        bluebox = Fog::Compute.new(
+          :provider => 'Bluebox',
   	  :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )

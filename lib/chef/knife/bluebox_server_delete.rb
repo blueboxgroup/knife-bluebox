@@ -16,24 +16,28 @@
 # limitations under the License.
 #
 
-require 'fog'
-require 'highline'
-require 'readline'
 require 'chef/knife'
-require 'chef/json_compat'
 
 class Chef
   class Knife
     class BlueboxServerDelete < Knife
 
+      deps do
+        require 'fog'
+        require 'highline'
+        require 'readline'
+        require 'chef/json_compat'
+      end
+
       banner "knife bluebox server delete BLOCK-HOSTNAME"
 
-    def h
+      def h
         @highline ||= HighLine.new
       end
 
       def run
-        bluebox = Fog::Bluebox::Compute.new(
+        bluebox = Fog::Compute.new(
+          :provider => 'Bluebox',
   	  :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )

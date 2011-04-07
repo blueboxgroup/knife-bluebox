@@ -29,6 +29,7 @@ class Chef
         require 'socket'
         require 'net/ssh/multi'
         require 'readline'
+        require 'highline'
         require 'chef/json_compat'
       end
 
