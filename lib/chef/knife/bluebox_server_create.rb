@@ -85,6 +85,11 @@ class Chef
         :long => "--load_balancer LB",
         :description => "Adds server to the specified load balanced application."
 
+      option :block_startup_timeout,
+        :long => "--block_startup_timeout TIME",
+        :description => "Amount of time fog should wait before aborting server deployment.",
+        :default => 10 * 60
+
       def h
         @highline ||= HighLine.new
       end
@@ -134,13 +139,13 @@ class Chef
           # The server was succesfully queued... Now wait for it to spin up...
           print "\n#{h.color("Requesting status of #{server.hostname}\n", :magenta)}"
 
-          # Allow for 10 minutes to time out...
-          # ready? will raise Fog::Bluebox::BlockInstantiationError if block creation fails.
-          unless server.wait_for( 10 * 60 ){ print "."; STDOUT.flush; ready? }
+          # Define a timeout and ensure the block starts up in the specified amount of time:
+          # ready? will raise Fog::Bluebox::Compute::BlockInstantiationError if block creation fails.
+          unless server.wait_for( config[:block_startup_timeout] ){ print "."; STDOUT.flush; ready? }
 
-            # The server wasn't started in 10 minutes... Send a destroy call to make sure it doesn't spin up on us later...
+            # The server wasn't started in specified timeout ... Send a destroy call to make sure it doesn't spin up on us later.
             server.destroy
-            raise Fog::Bluebox::Compute::BlockInstantiationError, "BBG server not available after 5 minutes"
+            raise Fog::Bluebox::Compute::BlockInstantiationError, "BBG server not available after #{config[:block_startup_timeout]} seconds."
 
           else
             print "\n\n#{h.color("BBG Server startup succesful.  Accessible at #{server.hostname}\n", :green)}"
