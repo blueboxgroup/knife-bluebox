@@ -128,7 +128,7 @@ class Chef
         begin
 
           # Make sure we could properly queue the server for creation on BBG.
-          raise Fog::Bluebox::Compute::BlockInstantiationError if server.status != "queued"
+          raise Fog::Compute::Bluebox::BlockInstantiationError if server.status != "queued"
           puts "#{h.color("Hostname", :cyan)}: #{server.hostname}"
           puts "#{h.color("Server Status", :cyan)}: #{server.status.capitalize}"
           puts "#{h.color("Flavor", :cyan)}: #{flavors[server.flavor_id]}"
@@ -145,7 +145,7 @@ class Chef
 
             # The server wasn't started in specified timeout ... Send a destroy call to make sure it doesn't spin up on us later.
             server.destroy
-            raise Fog::Bluebox::Compute::BlockInstantiationError, "BBG server not available after #{config[:block_startup_timeout]} seconds."
+            raise Fog::Compute::Bluebox::BlockInstantiationError, "BBG server not available after #{config[:block_startup_timeout]} seconds."
 
           else
             print "\n\n#{h.color("BBG Server startup succesful.  Accessible at #{server.hostname}\n", :green)}"
@@ -185,7 +185,7 @@ class Chef
 
           end
 
-        rescue Fog::Bluebox::Compute::BlockInstantiationError => e
+        rescue Fog::Compute::Bluebox::BlockInstantiationError => e
 
           puts "\n\n#{h.color("Encountered error starting up BBG block. Auto destroy called.  Please try again.", :red)}"
 
