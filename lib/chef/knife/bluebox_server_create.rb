@@ -128,9 +128,9 @@ class Chef
         begin
 
           # Make sure we could properly queue the server for creation on BBG.
-          raise Fog::Compute::Bluebox::BlockInstantiationError if server.status != "queued"
+          raise Fog::Compute::Bluebox::BlockInstantiationError if server.state != "queued"
           puts "#{h.color("Hostname", :cyan)}: #{server.hostname}"
-          puts "#{h.color("Server Status", :cyan)}: #{server.status.capitalize}"
+          puts "#{h.color("Server Status", :cyan)}: #{server.state.capitalize}"
           puts "#{h.color("Flavor", :cyan)}: #{flavors[server.flavor_id]}"
           puts "#{h.color("Image", :cyan)}: #{images[server.image_id]}"
           puts "#{h.color("IP Address", :cyan)}: #{server.ips[0]['address']}"
