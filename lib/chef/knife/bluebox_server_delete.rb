@@ -45,8 +45,8 @@ class Chef
         servers = bluebox.servers.inject({}) { |h,f| h[f.hostname] = f.id; h }
 
         unless servers.has_key?(@name_args[0])
-          Chef::Log.warn("I can't find a block named #{@name_args[0]}")
-          return false
+          ui.error("Can't find a block named #{@name_args[0]}")
+          exit 1
         end
 
         confirm(h.color("Do you really want to delete block UUID #{servers[@name_args[0]]} with hostname #{@name_args[0]}", :green))
@@ -54,10 +54,13 @@ class Chef
         begin
           response = bluebox.destroy_block(servers[@name_args[0]])
           if response.status == 200
-            Chef::Log.warn("Deleted server #{servers[@name_args[0]]} named #{@name_args[0]}")
+            puts "\n\n#{h.color("Successfully destroyed #{@name_args[0]}", :green)}"
+          else
+            puts "\n\n#{h.color("There was a problem destroying #{@name_args[0]}. Please check Box Panel.", :red)}"
+            exit 1
           end
         rescue Excon::Errors::UnprocessableEntity
-          Chef::Log.warn("There was a problem deleting #{@name_args[0]}.  Please check Box Panel.")
+          puts "\n\n#{h.color("There was a problem destroying #{@name_args[0]}. Please check Box Panel.", :red)}"
         end
       end
     end
