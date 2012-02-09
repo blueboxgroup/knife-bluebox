@@ -63,10 +63,10 @@ class Chef
         :description => "User password on new server.",
         :default => ""
 
-      option :bootstrap,
-        :long => "--bootstrap false",
+      option :disable_bootstrap,
+        :long => "--disable-bootstrap",
         :description => "Disables the bootstrapping process.",
-        :default => true
+        :boolean => true
 
       option :distro,
         :short => "-d DISTRO",
@@ -119,6 +119,7 @@ class Chef
           :image_id => Chef::Config[:knife][:image] || config[:image],
           :hostname => config[:chef_node_name],
           :username => Chef::Config[:knife][:username] || config[:username],
+          :password => config[:password],
           :public_key => public_key,
           :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
         )
@@ -142,7 +143,7 @@ class Chef
 
           # Define a timeout and ensure the block starts up in the specified amount of time:
           # ready? will raise Fog::Bluebox::Compute::BlockInstantiationError if block creation fails.
-          unless server.wait_for( config[:block_startup_timeout] ){ print "."; STDOUT.flush; ready? }
+          unless server.wait_for(config[:block_startup_timeout]){ print "."; STDOUT.flush; ready? }
 
             # The server wasn't started in specified timeout ... Send a destroy call to make sure it doesn't spin up on us later.
             server.destroy
@@ -152,9 +153,9 @@ class Chef
             print "\n\n#{h.color("BBG Server startup succesful.  Accessible at #{server.hostname}\n", :green)}"
 
             # Make sure we should be bootstrapping.
-            unless config[:bootstrap]
-              puts "\n\n#{h.color("Boostrapping disabled per command line inputs.  Exiting here.}", :green)}"
-              return true
+            if config[:disable_bootstrap]
+              puts "\n\n#{h.color("Boostrapping disabled per command line inputs.  Exiting here.", :green)}"
+              exit 0
             end
 
             # Bootstrap away!
@@ -165,9 +166,7 @@ class Chef
               bootstrap = Chef::Knife::Bootstrap.new
               bootstrap.name_args = [ server.ips[0]['address'] ]
               bootstrap.config[:run_list] = @name_args
-              unless Chef::Config[:knife][:ssh_key]
-                bootstrap.config[:password] = password
-              end
+              bootstrap.config[:password] = password unless config[:password].blank?
               bootstrap.config[:ssh_user] = config[:username]
               bootstrap.config[:identity_file] = config[:identity_file]
               bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.hostname
