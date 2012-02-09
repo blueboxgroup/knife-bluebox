@@ -49,7 +49,7 @@ class Chef
         :short => "-i IMAGE",
         :long => "--image IMAGE",
         :description => "The image of the server",
-        :default => "03807e08-a13d-44e4-b011-ebec7ef2c928"
+        :default => "a8f05200-7638-47d1-8282-2474ef57c4c3"
 
       option :username,
         :short => "-U KEY",
