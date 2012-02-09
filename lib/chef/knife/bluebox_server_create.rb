@@ -94,6 +94,16 @@ class Chef
       end
 
       def run
+        $stdout.sync = true
+        
+        if Chef::Config[:knife][:identity_file].nil? && config[:identity_file].nil?
+          ui.error('You have not provided a SSH identity file. This is required to create a Blue Box server.')
+          exit 1
+        elsif Chef::Config[:knife][:identity_file]
+          public_key = File.read(Chef::Config[:knife][:identity_file]).chomp
+        else public_key = File.read(config[:identity_file]).chomp
+        end
+        
         bluebox = Fog::Compute::Bluebox.new(
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
@@ -103,18 +113,17 @@ class Chef
         images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
 
         puts "#{h.color("Deploying a new Blue Box Block...", :green)}\n\n"
-        server_args = {
-          :flavor_id => config[:flavor],
-          :image_id => config[:image],
-          :username => config[:username],
-          :password => config[:password],
-          :lb_applications => config[:load_balancer]
-          }
-        server_args[:public_key] = Chef::Config[:knife][:ssh_key] if Chef::Config[:knife][:ssh_key]
 
-        server = bluebox.servers.new(server_args)
+        server = bluebox.servers.new(
+          :flavor_id => Chef::Config[:knife][:flavor] || config[:flavor],
+          :image_id => Chef::Config[:knife][:image] || config[:image],
+          :hostname => config[:chef_node_name],
+          :username => Chef::Config[:knife][:username] || config[:username],
+          :public_key => public_key,
+          :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
+        )
+
         response = server.save
-        $stdout.sync = true
 
         # Wait for the server to start
         begin
