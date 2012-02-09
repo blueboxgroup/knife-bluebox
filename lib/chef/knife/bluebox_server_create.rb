@@ -23,14 +23,13 @@ class Chef
     class BlueboxServerCreate < Knife
 
       deps do
-        require 'chef/knife/bootstrap'
-        Chef::Knife::Bootstrap.load_deps
         require 'fog'
-        require 'socket'
-        require 'net/ssh/multi'
         require 'readline'
         require 'highline'
+        require 'net/ssh/multi'
         require 'chef/json_compat'
+        require 'chef/knife/bootstrap'
+        Chef::Knife::Bootstrap.load_deps
       end
 
       banner "knife bluebox server create [RUN LIST...] (options)"
@@ -95,12 +94,6 @@ class Chef
       end
 
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        require 'erb'
-
         bluebox = Fog::Compute.new(
           :provider => 'Bluebox',
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
