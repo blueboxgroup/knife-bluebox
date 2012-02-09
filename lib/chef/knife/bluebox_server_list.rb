@@ -16,11 +16,7 @@
 # limitations under the License.
 #
 
-require 'fog'
-require 'highline'
-require 'readline'
 require 'chef/knife'
-require 'chef/json_compat'
 
 class Chef
   class Knife
