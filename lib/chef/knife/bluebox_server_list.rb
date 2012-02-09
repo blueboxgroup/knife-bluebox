@@ -16,11 +16,7 @@
 # limitations under the License.
 #
 
-require 'fog'
-require 'highline'
-require 'readline'
 require 'chef/knife'
-require 'chef/json_compat'
 
 class Chef
   class Knife
@@ -40,9 +36,8 @@ class Chef
       end
 
       def run
-        bluebox = Fog::Compute.new(
-          :provider => 'Bluebox',
-  	  :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
+        bluebox = Fog::Compute::Bluebox.new(
+          :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 

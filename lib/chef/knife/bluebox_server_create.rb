@@ -23,14 +23,13 @@ class Chef
     class BlueboxServerCreate < Knife
 
       deps do
-        require 'chef/knife/bootstrap'
-        Chef::Knife::Bootstrap.load_deps
         require 'fog'
-        require 'socket'
-        require 'net/ssh/multi'
         require 'readline'
         require 'highline'
+        require 'net/ssh/multi'
         require 'chef/json_compat'
+        require 'chef/knife/bootstrap'
+        Chef::Knife::Bootstrap.load_deps
       end
 
       banner "knife bluebox server create [RUN LIST...] (options)"
@@ -50,7 +49,7 @@ class Chef
         :short => "-i IMAGE",
         :long => "--image IMAGE",
         :description => "The image of the server",
-        :default => "03807e08-a13d-44e4-b011-ebec7ef2c928"
+        :default => "a8f05200-7638-47d1-8282-2474ef57c4c3"
 
       option :username,
         :short => "-U KEY",
@@ -64,10 +63,10 @@ class Chef
         :description => "User password on new server.",
         :default => ""
 
-      option :bootstrap,
-        :long => "--bootstrap false",
+      option :disable_bootstrap,
+        :long => "--disable-bootstrap",
         :description => "Disables the bootstrapping process.",
-        :default => true
+        :boolean => true
 
       option :distro,
         :short => "-d DISTRO",
@@ -95,14 +94,17 @@ class Chef
       end
 
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        require 'erb'
-
-        bluebox = Fog::Compute.new(
-          :provider => 'Bluebox',
+        $stdout.sync = true
+        
+        if Chef::Config[:knife][:identity_file].nil? && config[:identity_file].nil?
+          ui.error('You have not provided a SSH identity file. This is required to create a Blue Box server.')
+          exit 1
+        elsif Chef::Config[:knife][:identity_file]
+          public_key = File.read(Chef::Config[:knife][:identity_file]).chomp
+        else public_key = File.read(config[:identity_file]).chomp
+        end
+        
+        bluebox = Fog::Compute::Bluebox.new(
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
@@ -111,18 +113,18 @@ class Chef
         images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
 
         puts "#{h.color("Deploying a new Blue Box Block...", :green)}\n\n"
-        server_args = {
-          :flavor_id => config[:flavor],
-          :image_id => config[:image],
-          :username => config[:username],
-          :password => config[:password],
-          :lb_applications => config[:load_balancer]
-          }
-        server_args[:public_key] = Chef::Config[:knife][:ssh_key] if Chef::Config[:knife][:ssh_key]
 
-        server = bluebox.servers.new(server_args)
+        server = bluebox.servers.new(
+          :flavor_id => Chef::Config[:knife][:flavor] || config[:flavor],
+          :image_id => Chef::Config[:knife][:image] || config[:image],
+          :hostname => config[:chef_node_name],
+          :username => Chef::Config[:knife][:username] || config[:username],
+          :password => config[:password],
+          :public_key => public_key,
+          :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
+        )
+
         response = server.save
-        $stdout.sync = true
 
         # Wait for the server to start
         begin
@@ -141,7 +143,7 @@ class Chef
 
           # Define a timeout and ensure the block starts up in the specified amount of time:
           # ready? will raise Fog::Bluebox::Compute::BlockInstantiationError if block creation fails.
-          unless server.wait_for( config[:block_startup_timeout] ){ print "."; STDOUT.flush; ready? }
+          unless server.wait_for(config[:block_startup_timeout]){ print "."; STDOUT.flush; ready? }
 
             # The server wasn't started in specified timeout ... Send a destroy call to make sure it doesn't spin up on us later.
             server.destroy
@@ -151,9 +153,9 @@ class Chef
             print "\n\n#{h.color("BBG Server startup succesful.  Accessible at #{server.hostname}\n", :green)}"
 
             # Make sure we should be bootstrapping.
-            unless config[:bootstrap]
-              puts "\n\n#{h.color("Boostrapping disabled per command line inputs.  Exiting here.}", :green)}"
-              return true
+            if config[:disable_bootstrap]
+              puts "\n\n#{h.color("Boostrapping disabled per command line inputs.  Exiting here.", :green)}"
+              exit 0
             end
 
             # Bootstrap away!
@@ -164,9 +166,7 @@ class Chef
               bootstrap = Chef::Knife::Bootstrap.new
               bootstrap.name_args = [ server.ips[0]['address'] ]
               bootstrap.config[:run_list] = @name_args
-              unless Chef::Config[:knife][:ssh_key]
-                bootstrap.config[:password] = password
-              end
+              bootstrap.config[:password] = password unless config[:password].blank?
               bootstrap.config[:ssh_user] = config[:username]
               bootstrap.config[:identity_file] = config[:identity_file]
               bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.hostname
