@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -95,7 +95,7 @@ class Chef
 
       def run
         $stdout.sync = true
-        
+
         if Chef::Config[:knife][:identity_file].nil? && config[:identity_file].nil?
           ui.error('You have not provided a SSH identity file. This is required to create a Blue Box server.')
           exit 1
@@ -103,7 +103,7 @@ class Chef
           public_key = File.read(Chef::Config[:knife][:identity_file]).chomp
         else public_key = File.read(config[:identity_file]).chomp
         end
-        
+
         bluebox = Fog::Compute::Bluebox.new(
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
@@ -166,7 +166,7 @@ class Chef
               bootstrap = Chef::Knife::Bootstrap.new
               bootstrap.name_args = [ server.ips[0]['address'] ]
               bootstrap.config[:run_list] = @name_args
-              bootstrap.config[:password] = password unless config[:password].blank?
+              bootstrap.config[:password] = password unless config[:password].empty?
               bootstrap.config[:ssh_user] = config[:username]
               bootstrap.config[:identity_file] = config[:identity_file]
               bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.hostname
