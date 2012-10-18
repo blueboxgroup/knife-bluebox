@@ -17,40 +17,7 @@
 # limitations under the License.
 #
 
-require 'rubygems'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
-
-GEM_NAME = "knife-bluebox"
-
-spec = eval(File.read("knife-bluebox.gemspec"))
-
-Rake::GemPackageTask.new(spec) do |pkg|
-  pkg.gem_spec = spec
-end
-
-begin
-  require 'sdoc'
-
-  Rake::RDocTask.new do |rdoc|
-    rdoc.title = "Knife BlueBox Documentation"
-    rdoc.main = "README.rdoc"
-    rdoc.options << '--fmt' << 'shtml' # explictly set shtml generator
-    rdoc.template = 'direct' # lighter template
-    rdoc.rdoc_files.include("README.rdoc", "LICENSE", "lib/**/*.rb")
-    rdoc.rdoc_dir = "rdoc"
-  end
-rescue LoadError
-  puts "sdoc is not available. (sudo) gem install sdoc to generate rdoc documentation."
-end
-
-task :install => :package do
-  sh %{gem install pkg/#{GEM_NAME}-#{KnifeBlueBox::VERSION} --no-rdoc --no-ri}
-end
-
-task :uninstall do
-  sh %{gem uninstall #{GEM_NAME} -x -v #{KnifeBlueBox::VERSION} }
-end
+require 'bundler/gem_tasks'
 
 begin
   require 'rspec/core/rake_task'
@@ -65,5 +32,3 @@ begin
 rescue LoadError
   STDERR.puts "\n*** RSpec not available. (sudo) gem install rspec to run unit tests. ***\n\n"
 end
-
-
