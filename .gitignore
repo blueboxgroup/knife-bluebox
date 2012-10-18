@@ -33,3 +33,7 @@ Icon?
 
 *.swp
 *.swo
+
+.rvmrc
+.rbenv-version
+.ruby-version
