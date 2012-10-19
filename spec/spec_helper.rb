@@ -24,6 +24,8 @@ end
 
 module Helpers
 
+  # Thanks to:
+  # http://thinkingdigitally.com/archive/capturing-output-from-puts-in-ruby/
   def capture_stdout
     out = StringIO.new
     $stdout = out
