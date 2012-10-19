@@ -42,6 +42,10 @@ module Helpers
     @stderr = StringIO.new
     @knife.ui.stub!(:stderr) { @stderr }
   end
+
+  def ips(primary_ip)
+    [ { "address" => primary_ip }, { "address" => "i:am:an:ip:v:6:addr" } ]
+  end
 end
 
 RSpec.configure do |config|

@@ -28,10 +28,6 @@ describe Chef::Knife::BlueboxServerList do
     create_testable_plugin!
   end
 
-  def ips(primary_ip)
-    [ { "address" => primary_ip }, { "address" => "i:am:an:ip:v:6:addr" } ]
-  end
-
   let(:connection)  { mock(Fog::Compute::Bluebox) }
 
   let(:servers) do
