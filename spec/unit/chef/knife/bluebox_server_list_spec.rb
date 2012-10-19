@@ -19,22 +19,17 @@
 require File.expand_path('../../../../spec_helper', __FILE__)
 require 'chef/knife/bluebox_server_list'
 require 'fog'
-Chef::Knife::BlueboxServerList.load_deps
 
 describe Chef::Knife::BlueboxServerList do
 
-  def ips(primary_ip)
-    [ { "address" => primary_ip }, { "address" => "i:am:an:ip:v:6:addr" } ]
-  end
+  described_class.load_deps
 
   before do
-    Chef::Log.logger = Logger.new(StringIO.new)
-    @knife = Chef::Knife::BlueboxServerList.new
-    @stdout = StringIO.new
-    @knife.ui.stub!(:stdout) { @stdout }
-    @knife.ui.stub(:msg)
-    @stderr = StringIO.new
-    @knife.ui.stub!(:stderr) { @stderr }
+    create_testable_plugin!
+  end
+
+  def ips(primary_ip)
+    [ { "address" => primary_ip }, { "address" => "i:am:an:ip:v:6:addr" } ]
   end
 
   let(:connection)  { mock(Fog::Compute::Bluebox) }

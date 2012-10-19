@@ -26,6 +26,16 @@ module Helpers
   ensure
     $stdout = STDOUT
   end
+
+  def create_testable_plugin!(klass = described_class)
+    Chef::Log.logger = Logger.new(StringIO.new)
+    @knife = klass.new
+    @stdout = StringIO.new
+    @knife.ui.stub!(:stdout) { @stdout }
+    @knife.ui.stub(:msg)
+    @stderr = StringIO.new
+    @knife.ui.stub!(:stderr) { @stderr }
+  end
 end
 
 RSpec.configure do |config|

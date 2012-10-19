@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+require File.expand_path('../../../../spec_helper', __FILE__)
 require 'chef/knife/bluebox_base'
 
 class Chef
@@ -25,18 +26,13 @@ class Chef
     end
   end
 end
-Chef::Knife::DummyKnife.load_deps
 
 describe Chef::Knife::BlueboxBase do
 
+  Chef::Knife::DummyKnife.load_deps
+
   before do
-    Chef::Log.logger = Logger.new(StringIO.new)
-    @knife = Chef::Knife::DummyKnife.new
-    @stdout = StringIO.new
-    @knife.ui.stub!(:stdout) { @stdout }
-    @knife.ui.stub(:msg)
-    @stderr = StringIO.new
-    @knife.ui.stub!(:stderr) { @stderr }
+    create_testable_plugin!(Chef::Knife::DummyKnife)
   end
 
   describe "#bluebox_connection" do
