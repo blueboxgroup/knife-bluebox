@@ -16,14 +16,15 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
+require 'chef/knife/bluebox_base'
 
 class Chef
   class Knife
     class BlueboxServerDelete < Knife
 
+      include Chef::Knife::BlueboxBase
+
       deps do
-        require 'fog'
         require 'highline'
         require 'readline'
         require 'chef/json_compat'
@@ -35,10 +36,7 @@ class Chef
       banner "knife bluebox server delete BLOCK-HOSTNAME"
 
       def run
-        bluebox = Fog::Compute::Bluebox.new(
-          :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
-          :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
-        )
+        bluebox = bluebox_connection
 
         @server_to_remove = @name_args[0]
 
@@ -62,6 +60,7 @@ class Chef
           end
         rescue Excon::Errors::UnprocessableEntity
           ui.msg(red("There was a problem destroying #{@server_to_remove}. Please check Box Panel."))
+          exit 1
         end
 
         # remove chef client and node
