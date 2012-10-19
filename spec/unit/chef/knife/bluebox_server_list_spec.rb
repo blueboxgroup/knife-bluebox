@@ -17,15 +17,19 @@
 #
 
 require File.expand_path('../../../../spec_helper', __FILE__)
-require 'chef/knife/bluebox_images_list'
+require 'chef/knife/bluebox_server_list'
 require 'fog'
-Chef::Knife::BlueboxImagesList.load_deps
+Chef::Knife::BlueboxServerList.load_deps
 
-describe Chef::Knife::BlueboxImagesList do
+describe Chef::Knife::BlueboxServerList do
+
+  def ips(primary_ip)
+    [ { "address" => primary_ip }, { "address" => "i:am:an:ip:v:6:addr" } ]
+  end
 
   before do
     Chef::Log.logger = Logger.new(StringIO.new)
-    @knife = Chef::Knife::BlueboxImagesList.new
+    @knife = Chef::Knife::BlueboxServerList.new
     @stdout = StringIO.new
     @knife.ui.stub!(:stdout) { @stdout }
     @knife.ui.stub(:msg)
@@ -35,10 +39,10 @@ describe Chef::Knife::BlueboxImagesList do
 
   let(:connection)  { mock(Fog::Compute::Bluebox) }
 
-  let(:images) do
+  let(:servers) do
     [
-      stub(:id => "uuid-9", :description => "NightmareOS"),
-      stub(:id => "uuid-1", :description => "DreamOS")
+      stub(:id => "uuid-8", :hostname => "wiggum.com", :ips => ips("172.0.1.2")),
+      stub(:id => "uuid-2", :hostname => "ralph.org", :ips => ips("172.0.3.4"))
     ]
   end
 
@@ -46,16 +50,16 @@ describe Chef::Knife::BlueboxImagesList do
 
     before do
       @knife.stub(:bluebox_connection)  { connection }
-      connection.stub(:images)  { images }
+      connection.stub(:servers)  { servers }
     end
 
-    it "outputs image data" do
+    it "outputs server data" do
       out = capture_stdout do
         @knife.run
       end.string
 
-      out.should match(/uuid-9\s+NightmareOS/)
-      out.should match(/uuid-1\s+DreamOS/)
+      out.should match(/uuid-8\s+wiggum\.com\s+172\.0\.1\.2/)
+      out.should match(/uuid-2\s+ralph\.org\s+172\.0\.3\.4/)
     end
   end
 end

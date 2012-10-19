@@ -16,14 +16,15 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
+require 'chef/knife/bluebox_base'
 
 class Chef
   class Knife
     class BlueboxImageList < Knife
 
+      include Chef::Knife::BlueboxBase
+
       deps do
-        require 'fog'
         require 'highline'
         require 'chef/json_compat'
       end
@@ -41,16 +42,8 @@ class Chef
           image_list << server.id.to_s
           image_list << server.description
         end
+
         puts highline.list(image_list, :columns_across, 2)
-
-      end
-
-      def bluebox_connection
-        @bluebox_connection ||= Fog::Compute.new(
-          :provider => :bluebox,
-          :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
-          :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
-        )
       end
     end
   end
