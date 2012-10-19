@@ -35,21 +35,22 @@ class Chef
       end
 
       def run
-        bluebox = Fog::Compute::Bluebox.new(
-          :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
-          :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
-        )
-
-        images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
-
         image_list = [ highline.color('ID', :bold), highline.color('Name', :bold) ]
 
-        bluebox.images.each do |image|
-          image_list << image.id.to_s
-          image_list << image.description
+        bluebox_connection.images.each do |server|
+          image_list << server.id.to_s
+          image_list << server.description
         end
         puts highline.list(image_list, :columns_across, 2)
 
+      end
+
+      def bluebox_connection
+        @bluebox_connection ||= Fog::Compute.new(
+          :provider => :bluebox,
+          :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
+          :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
+        )
       end
     end
   end
