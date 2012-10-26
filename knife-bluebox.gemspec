@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   s.email             = "support@bluebox.net"
   s.homepage          = "http://wiki.opscode.com/display/chef"
 
-  s.add_dependency "chef", ">= 0.9.14"
-  s.add_dependency "fog", "~> 1.1.2"
+  s.add_dependency "chef", ">= 0.10.10"
+  s.add_dependency "fog", "~> 1.6"
   s.require_path = 'lib'
   s.files = %w(LICENSE README.rdoc) + Dir.glob("lib/**/*")
 end
