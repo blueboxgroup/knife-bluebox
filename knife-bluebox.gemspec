@@ -7,11 +7,11 @@ Gem::Specification.new do |s|
   s.platform          = Gem::Platform::RUBY
   s.has_rdoc          = true
   s.extra_rdoc_files  = ["README.rdoc", "LICENSE" ]
-  s.summary           = "Blue Box support for Chef's Knife command"
+  s.summary           = "Chef knife plugin for Blue Box"
   s.description       = s.summary
   s.authors           = ["Lee Huffman","Jesse Proudman"]
   s.email             = "support@bluebox.net"
-  s.homepage          = "http://wiki.opscode.com/display/chef"
+  s.homepage          = "https://github.com/blueboxgroup/knife-bluebox"
 
   s.add_dependency "chef", ">= 0.10.10"
   s.add_dependency "fog", "~> 1.6"
