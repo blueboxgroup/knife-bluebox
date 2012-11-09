@@ -10,8 +10,14 @@ Depending on your system configuration, you may need to run this command with
 root privileges.
 
 == Configuration
-TODO
+Set the following environmental variables
+
+export BLUEBOX_API_KEY="YourAPIKey"              # should match /[a-f0-9]+/
+export BLUEBOX_CUSTOMER_ID="YourCustomerNumber"  # should match /d+/
 
 == Usage
-TODO
+knife bluebox images list
+knife bluebox server create [RUN LIST...] (options)
+knife bluebox server delete BLOCK-HOSTNAME
+knife bluebox server list (options)
 
