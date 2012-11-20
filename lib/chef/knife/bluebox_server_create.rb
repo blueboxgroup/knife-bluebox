@@ -165,7 +165,7 @@ class Chef
             begin
               bootstrap = Chef::Knife::Bootstrap.new
               bootstrap.name_args = [ server.ips[0]['address'] ]
-              bootstrap.config[:run_list] = @name_args
+              bootstrap.config[:run_list] = run_list
               bootstrap.config[:password] = password unless config[:password].empty?
               bootstrap.config[:ssh_user] = config[:username]
               bootstrap.config[:identity_file] = config[:identity_file]
@@ -190,8 +190,12 @@ class Chef
           puts "\n\n#{h.color("Encountered error starting up BBG block. Auto destroy called.  Please try again.", :red)}"
 
         end
-
       end
+
+      def run_list
+        @name_args.first.split(/[\s,]+/)
+      end
+
     end
   end
 end
