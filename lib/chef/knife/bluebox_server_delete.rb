@@ -27,7 +27,6 @@ class Chef
         require 'highline'
         require 'readline'
         require 'chef/json_compat'
-        require 'chef/search/query'
         require 'chef/node'
         require 'chef/api_client'
       end
