@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,13 +27,11 @@ class Chef
         require 'highline'
         require 'readline'
         require 'chef/json_compat'
+        require 'chef/node'
+        require 'chef/api_client'
       end
 
       banner "knife bluebox server delete BLOCK-HOSTNAME"
-
-      def h
-        @highline ||= HighLine.new
-      end
 
       def run
         bluebox = Fog::Compute::Bluebox.new(
@@ -41,28 +39,69 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
+        server_to_remove = @name_args[0]
+
         # Build hash of hostname => id
         servers = bluebox.servers.inject({}) { |h,f| h[f.hostname] = f.id; h }
 
-        unless servers.has_key?(@name_args[0])
-          ui.error("Can't find a block named #{@name_args[0]}")
+        unless servers.has_key?(server_to_remove)
+          ui.error("Can't find a block named #{server_to_remove}")
           exit 1
         end
 
-        confirm(h.color("Do you really want to delete block UUID #{servers[@name_args[0]]} with hostname #{@name_args[0]}", :green))
-
+        # remove the block instance
+        ui.confirm("Do you really want to delete block UUID #{servers[server_to_remove]} with hostname #{server_to_remove}")
         begin
-          response = bluebox.destroy_block(servers[@name_args[0]])
+          response = bluebox.destroy_block(servers[server_to_remove])
           if response.status == 200
-            puts "\n\n#{h.color("Successfully destroyed #{@name_args[0]}", :green)}"
+            ui.msg(green("Successfully destroyed #{server_to_remove}"))
           else
-            puts "\n\n#{h.color("There was a problem destroying #{@name_args[0]}. Please check Box Panel.", :red)}"
+            ui.msg(red("There was a problem destroying #{server_to_remove}. Please check Box Panel."))
             exit 1
           end
         rescue Excon::Errors::UnprocessableEntity
-          puts "\n\n#{h.color("There was a problem destroying #{@name_args[0]}. Please check Box Panel.", :red)}"
+          ui.msg(red("There was a problem destroying #{server_to_remove}. Please check Box Panel."))
+        end
+
+        # remove chef client and node
+        chef_name = server_to_remove.split(".").first
+        ui.confirm("Do you wish to remove the #{chef_name} node and client objects from the chef server?")
+        remove_node(chef_name)
+        remove_client(chef_name)
+      end
+
+      def remove_node(node)
+        begin
+          object = Chef::Node.load(node)
+          object.destroy
+          ui.msg(green("#{node} node removed from chef server"))
+        rescue Net::HTTPServerException
+          ui.msg(green("The chef server did not have a #{node} node object"))
         end
       end
+
+      def remove_client(client)
+        begin
+          object = Chef::ApiClient.load(client)
+          object.destroy
+          ui.msg(green("#{client} client removed from chef server"))
+        rescue Net::HTTPServerException
+          ui.msg(green("The chef server did not have a #{client} client object"))
+        end
+      end
+
+      def highline
+        @highline ||= HighLine.new
+      end
+
+      def green(text)
+        "#{highline.color(text, :green)}"
+      end
+
+      def red(text)
+        "#{highline.color(text, :red)}"
+      end
+
     end
   end
 end
