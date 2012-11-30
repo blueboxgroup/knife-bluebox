@@ -92,7 +92,7 @@ class Chef
           object.destroy
           ui.msg(green("#{node} node removed from chef server"))
         rescue
-          ui.err(red(" Could not remove the #{node} node"))
+          ui.warn(" Could not remove the #{node} node")
         end
       end
 
@@ -100,7 +100,7 @@ class Chef
         begin
           object = Chef::ApiClient.load(client)
           object.destroy
-          ui.warn("#{client} client removed from chef server")
+          ui.msg(green("#{client} client removed from chef server"))
         rescue
           ui.warn("Could not remove the #{client} client")
         end
