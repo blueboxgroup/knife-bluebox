@@ -193,7 +193,9 @@ class Chef
       end
 
       def run_list
-        @name_args.first.split(/[\s,]+/)
+        candidate = @name_args.first
+        return candidate if /[\s,]+/ !~ candidate
+        candidate.split(/[\s,]+/)
       end
 
     end
