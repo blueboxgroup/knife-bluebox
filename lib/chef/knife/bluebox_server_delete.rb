@@ -29,6 +29,7 @@ class Chef
         require 'chef/json_compat'
         require 'chef/node'
         require 'chef/api_client'
+        require 'chef/search/query'
       end
 
       banner "knife bluebox server delete BLOCK-HOSTNAME"
@@ -39,35 +40,50 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        server_to_remove = @name_args[0]
+        @server_to_remove = @name_args[0]
 
         # Build hash of hostname => id
         servers = bluebox.servers.inject({}) { |h,f| h[f.hostname] = f.id; h }
 
-        unless servers.has_key?(server_to_remove)
-          ui.error("Can't find a block named #{server_to_remove}")
+        unless servers.has_key?(@server_to_remove)
+          ui.error("Can't find a block named #{@server_to_remove}")
           exit 1
         end
 
         # remove the block instance
-        ui.confirm("Do you really want to delete block UUID #{servers[server_to_remove]} with hostname #{server_to_remove}")
+        ui.confirm("Do you really want to delete block UUID #{servers[@server_to_remove]} with hostname #{@server_to_remove}")
         begin
-          response = bluebox.destroy_block(servers[server_to_remove])
+          response = bluebox.destroy_block(servers[@server_to_remove])
           if response.status == 200
-            ui.msg(green("Successfully destroyed #{server_to_remove}"))
+            ui.msg(green("Successfully destroyed #{@server_to_remove}"))
           else
-            ui.msg(red("There was a problem destroying #{server_to_remove}. Please check Box Panel."))
+            ui.msg(red("There was a problem destroying #{@server_to_remove}. Please check Box Panel."))
             exit 1
           end
         rescue Excon::Errors::UnprocessableEntity
-          ui.msg(red("There was a problem destroying #{server_to_remove}. Please check Box Panel."))
+          ui.msg(red("There was a problem destroying #{@server_to_remove}. Please check Box Panel."))
         end
 
         # remove chef client and node
-        chef_name = server_to_remove.split(".").first
         ui.confirm("Do you wish to remove the #{chef_name} node and client objects from the chef server?")
-        remove_node(chef_name)
-        remove_client(chef_name)
+        if !chef_name.nil?
+          remove_node(chef_name)
+          remove_client(chef_name)
+        else
+          ui.msg "Could not locate a chef node associated with #{@server_to_remove}"
+        end
+      end
+
+      def chef_name
+        short_name = @server_to_remove.split(".").first
+
+        if node_exists?(@server_to_remove)
+          @server_to_remove
+        elsif node_exists?(short_name)
+          short_name
+        else
+          nil
+        end
       end
 
       def remove_node(node)
@@ -75,8 +91,8 @@ class Chef
           object = Chef::Node.load(node)
           object.destroy
           ui.msg(green("#{node} node removed from chef server"))
-        rescue Net::HTTPServerException
-          ui.msg(green("The chef server did not have a #{node} node object"))
+        rescue
+          ui.warn(" Could not remove the #{node} node")
         end
       end
 
@@ -85,9 +101,14 @@ class Chef
           object = Chef::ApiClient.load(client)
           object.destroy
           ui.msg(green("#{client} client removed from chef server"))
-        rescue Net::HTTPServerException
-          ui.msg(green("The chef server did not have a #{client} client object"))
+        rescue
+          ui.warn("Could not remove the #{client} client")
         end
+      end
+
+      def node_exists?(node)
+        search = Chef::Search::Query.new
+        !search.search('node', "name:#{node}").first.empty?
       end
 
       def highline
