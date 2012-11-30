@@ -173,6 +173,7 @@ class Chef
               bootstrap.config[:use_sudo] = true
               bootstrap.config[:distro] = config[:distro]
               bootstrap.run
+              print "\n#{h.color("Finished bootstrapping #{server.hostname}\n\n", :green)}"
             rescue Errno::ECONNREFUSED
               puts h.color("Connection refused on SSH, retrying - CTRL-C to abort")
               sleep 1
