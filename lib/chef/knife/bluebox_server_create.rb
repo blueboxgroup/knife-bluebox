@@ -72,7 +72,7 @@ class Chef
         :short => "-d DISTRO",
         :long => "--distro DISTRO",
         :description => "Bootstrap a distro using a template",
-        :default => "ubuntu10.04-gems"
+        :default => "chef-full"
 
       option :identity_file,
         :short => "-I IDENTITY_FILE",
