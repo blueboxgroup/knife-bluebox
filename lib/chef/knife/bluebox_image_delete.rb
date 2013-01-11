@@ -20,7 +20,7 @@ require 'chef/knife'
 
 class Chef
   class Knife
-    class BlueboxImageList < Knife
+    class BlueboxImageDelete < Knife
 
       deps do
         require 'fog'
@@ -28,28 +28,27 @@ class Chef
         require 'chef/json_compat'
       end
 
-      banner "knife bluebox image list"
+      banner "knife bluebox image delete [UUID]"
 
       def highline
         @highline ||= HighLine.new
       end
 
       def run
+        bluebox,image,delete = ARGV.shift, ARGV.shift, ARGV.shift
         bluebox = Fog::Compute::Bluebox.new(
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
+        image_uuid = ARGV.shift
 
-        images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
+        image = bluebox.images.get( image_uuid )
 
-        image_list = [ highline.color('ID', :bold), highline.color('Name', :bold) ]
-
-        bluebox.images.each do |image|
-          image_list << image.id.to_s
-          image_list << image.description
+        if image
+          puts image.destroy
+        else
+          ui.error("Image: #{image_uuid} could not be found")
         end
-        puts highline.list(image_list, :columns_across, 2)
-
       end
     end
   end
