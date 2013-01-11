@@ -44,9 +44,9 @@ class Chef
 
         image_list = [ highline.color('ID', :bold), highline.color('Name', :bold) ]
 
-        bluebox.images.each do |server|
-          image_list << server.id.to_s
-          image_list << server.description
+        bluebox.images.each do |image|
+          image_list << image.id.to_s
+          image_list << image.description
         end
         puts highline.list(image_list, :columns_across, 2)
 
