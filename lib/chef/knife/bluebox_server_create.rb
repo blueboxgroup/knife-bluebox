@@ -109,9 +109,11 @@ class Chef
         # else public_key = File.read(config[:identity_file]).chomp
         # end
 
+        
         public_key = config[:public_identity_file] || Chef::Config[:knife][:public_identity_file]
-        unless public_key
-          ui.error('You have not provided a SSH pubic identity file. This is required to create a Blue Box server.')
+
+        if config[:password].empty? && !public_key
+          ui.error('You have not provided a password or an SSH public identity file.')
           exit 1          
         end
 
