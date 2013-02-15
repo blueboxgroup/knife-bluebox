@@ -15,9 +15,18 @@ Set the following environmental variables
 export BLUEBOX_API_KEY="YourAPIKey"              # should match /[a-f0-9]+/
 export BLUEBOX_CUSTOMER_ID="YourCustomerNumber"  # should match /d+/
 
+Then add the following lines to <chef-repo-root>/.chef/knife.rb
+
+# API credentials for knife-bluebox
+knife[:bluebox_customer_id] = ENV['BLUEBOX_CUSTOMER_ID']
+knife[:bluebox_api_key]     = ENV['BLUEBOX_API_KEY']
+knife[:identity_file]       = "#{ENV['HOME']}/.ssh/id_rsa"
+knife[:public_identity_file] = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+
 == Usage
 knife bluebox images list
 knife bluebox server create [RUN LIST...] (options)
 knife bluebox server delete BLOCK-HOSTNAME
 knife bluebox server list (options)
 
+You will need to run knife from within your chef-repo to have the knife.rb config take effect.
