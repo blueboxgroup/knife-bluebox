@@ -60,8 +60,7 @@ class Chef
       option :password,
         :short => "-P password",
         :long => "--password password",
-        :description => "User password on new server.",
-        :default => ""
+        :description => "User password on new server."
 
       option :disable_bootstrap,
         :long => "--disable-bootstrap",
@@ -74,13 +73,13 @@ class Chef
         :description => "Bootstrap a distro using a template",
         :default => "chef-full"
 
-      option :private_identity_file,
-        :short => "-I PRIVATE_IDENTITY_FILE",
+      option :identity_file,
+        :short => "-I IDENTITY_FILE",
         :long => "--identity-file PRIVATE_IDENTITY_FILE",
         :description => "The private SSH identity file used for authentication to the new server"
 
       option :public_identity_file,
-        :short => "-I PUBLIC_IDENTITY_FILE",
+        :short => "-B PUBLIC_IDENTITY_FILE",
         :long => "--public-identity-file PUBLIC_IDENTITY_FILE",
         :description => "The public SSH identity file used for authentication to new server"      
 
@@ -101,20 +100,20 @@ class Chef
       def run
         $stdout.sync = true
 
-        # if Chef::Config[:knife][:identity_file].nil? && config[:private_identity_file].nil?
-        #   ui.error('You have not provided a SSH identity file. This is required to create a Blue Box server.')
-        #   exit 1
-        # elsif Chef::Config[:knife][:identity_file]
-        #   public_key = File.read(Chef::Config[:knife][:identity_file]).chomp
-        # else public_key = File.read(config[:identity_file]).chomp
-        # end
-
-        
         public_key = config[:public_identity_file] || Chef::Config[:knife][:public_identity_file]
+        identity_file = config[:identity_file] || Chef::Config[:knife][:identity_file]
 
-        if config[:password].empty? && !public_key
-          ui.error('You have not provided a password or an SSH public identity file.')
-          exit 1          
+        if config[:password].nil?
+
+          if !public_key
+            ui.error('Since no password was provided a public_identity_file needs to be set.')
+            exit 1
+          end
+
+          if !identity_file
+            ui.error('Since no password was provided an identity_file needs to be set.')
+            exit 1
+          end
         end
 
         bluebox = Fog::Compute::Bluebox.new(
@@ -133,7 +132,7 @@ class Chef
           :hostname => config[:chef_node_name],
           :username => Chef::Config[:knife][:username] || config[:username],
           :password => config[:password],
-          :public_key => public_key,
+          :public_key => File.read(public_key),
           :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
         )
 
@@ -179,9 +178,9 @@ class Chef
               bootstrap = Chef::Knife::Bootstrap.new
               bootstrap.name_args = [ server.ips[0]['address'] ]
               bootstrap.config[:run_list] = run_list
-              bootstrap.config[:password] = password unless config[:password].empty?
+              bootstrap.config[:ssh_password] = config[:password]
               bootstrap.config[:ssh_user] = config[:username]
-              bootstrap.config[:identity_file] = config[:private_identity_file]
+              bootstrap.config[:identity_file] = identity_file
               bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.hostname
               bootstrap.config[:use_sudo] = true
               bootstrap.config[:distro] = config[:distro]
