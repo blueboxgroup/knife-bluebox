@@ -132,7 +132,7 @@ class Chef
           :hostname => config[:chef_node_name],
           :username => Chef::Config[:knife][:username] || config[:username],
           :password => config[:password],
-          :public_key => File.read(public_key),
+          :public_key => public_key.nil? ? nil : File.read(public_key),
           :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
         )
 
