@@ -20,7 +20,7 @@ require 'chef/knife'
 
 class Chef
   class Knife
-    class BlueboxProductList < Knife
+    class BlueboxFlavorList < Knife
 
       deps do
         require 'fog'
@@ -29,7 +29,7 @@ class Chef
         require 'chef/json_compat'
       end
 
-      banner "knife bluebox product list"
+      banner "knife bluebox flavor list"
 
       def h
         @highline ||= HighLine.new
@@ -41,13 +41,13 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        product_list = [ h.color('ID', :bold), h.color('Description', :bold) ]
+        flavor_list = [ h.color('ID', :bold), h.color('Description', :bold) ]
 
         bluebox.flavors.each do |flavor|
-          product_list << flavor.id.to_s
-          product_list << flavor.description
+          flavor_list << flavor.id.to_s
+          flavor_list << flavor.description
         end
-        puts h.list(product_list, :columns_across, 2)
+        puts h.list(flavor_list, :columns_across, 2)
 
       end
     end
