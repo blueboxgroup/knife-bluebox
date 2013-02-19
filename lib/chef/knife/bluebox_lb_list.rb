@@ -46,10 +46,10 @@ class Chef
         blb.lb_applications.each do |application|
           lines << [ h.color('Application ID', :bold), h.color('Name', :bold), h.color('IPv4 address', :bold), h.color('IPv6 addr', :bold)]
           lines << [ application.id, application.name, application.ip_v4, application.ip_v6 ]
-          unless application.services.empty?
+          unless application.lb_services.empty?
             lines << [ h.color('Service ID', :bold), h.color('Service Type', :bold), h.color('Port', :bold), h.color('Private', :bold) ]
-            application.services.each do |service|
-              lines << [ service['id'], service['service_type'], service['port'].to_s, service['private'].to_s ]
+            application.lb_services.each do |service|
+              lines << [ service.id, service.service_type, service.port.to_s, service.private.to_s ]
             end
           end
         end
