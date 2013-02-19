@@ -1,7 +1,7 @@
 # `knife bluebox`
-This is the official Opscode Knife plugin for {Blue Box}[http://www.bluebox.net].
+This is the official Opscode Knife plugin for [Blue Box](http://www.bluebox.net).
 This plugin gives knife the ability to create, bootstrap, and manage Blue Box
-servers and load balancers.
+servers.
 
 ## Installation
 This plugin is distributed as a Ruby Gem. To install it, run:
@@ -36,4 +36,4 @@ knife bluebox server delete BLOCK-HOSTNAME
 knife bluebox server list (options)
 ```
 
-You will need to run knife from within your chef-repo to have the knife.rb config take effect.
+You will need to run knife from within your chef repo to have the knife.rb config take effect.
