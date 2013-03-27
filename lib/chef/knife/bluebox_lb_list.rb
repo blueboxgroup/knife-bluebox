@@ -24,15 +24,15 @@ class Chef
 
       deps do
         require 'fog'
-        require 'tabularize'
+        require 'highline'
         require 'readline'
         require 'chef/json_compat'
       end
 
       banner "knife bluebox lb list"
 
-      def bold(str)
-        "\e[1m#{str}\e[0m"
+      def h
+        @highline ||= HighLine.new
       end
 
       def run
@@ -42,17 +42,18 @@ class Chef
         )
 
         blb.lb_applications.each do |application|
-          table = Tabularize.new :border_style => :unicode
-          table << [ 'Application ID', 'Name', 'IP addresses' ].map {|s| bold(s)}
-          table << [ application.id, application.name, [ application.ip_v4, application.ip_v6 ].join("\n") ]
-          table.separator!
+          lines = []
+
+          lines << [ 'Application ID', 'Name', 'IP addresses'].map {|s| h.color(s, :bold)}
+          lines << [ application.id, application.name, application.ip_v4, nil, nil, application.ip_v6 ]
           unless application.lb_services.empty?
-            table << [ 'Service ID', 'Service Type', 'Port' ].map {|s| bold(s)}
+            lines << [ 'Service ID', 'Service Type', 'Port'].map {|s| h.color(s, :bold)}
             application.lb_services.each do |service|
-              table << [ service.id, service.service_type, service.port.to_s ]
+              lines << [ service.id, service.service_type, service.port.to_s ]
             end
           end
-          puts table
+          lines.flatten!
+          puts h.list(lines, :uneven_columns_across, 3)
         end
 
       end
