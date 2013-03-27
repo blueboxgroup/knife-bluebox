@@ -5,6 +5,7 @@ servers.
 
 ## Installation
 This plugin is distributed as a Ruby Gem. To install it, run:
+
     gem install knife-bluebox
 
 ## Configuration
@@ -34,8 +35,7 @@ Show available block types and associated UUIDs.
 
 ### knife bluebox image \[create|delete|list\] \[options\]
 Manipulate and display stored block images.
-* `knife bluebox create _UUID_` creates a new machine image from the server specified by 
-  `_UUID_`.
+* `knife bluebox create UUID` creates a new machine image from the server specified by `UUID`.
   * `--public` will make the machine image public for other blocks users to deploy from.
   * `--description` provides a description for the image. Default is machine hostname and
     timestamp.
