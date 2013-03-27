@@ -15,25 +15,39 @@ export BLUEBOX_API_KEY="YourAPIKey"              # should match /[a-f0-9]+/
 export BLUEBOX_CUSTOMER_ID="YourCustomerNumber"  # should match /d+/
 ```
 
-Then your chef repository's `.chef/knife.rb`, set
+Then in your chef repository's `.chef/knife.rb`, set
 
 ```ruby
-knife[:bluebox_customer_id] = ENV['BLUEBOX_CUSTOMER_ID']
-knife[:bluebox_api_key]     = ENV['BLUEBOX_API_KEY']
-knife[:identity_file]       = "#{ENV['HOME']}/.ssh/id_rsa"
+knife[:bluebox_customer_id]  = ENV['BLUEBOX_CUSTOMER_ID']
+knife[:bluebox_api_key]      = ENV['BLUEBOX_API_KEY']
+knife[:identity_file]        = "#{ENV['HOME']}/.ssh/id_rsa"
 knife[:public_identity_file] = "#{ENV['HOME']}/.ssh/id_rsa.pub"
 ```
 
-## Usage
-```
-knife bluebox flavor list
-knife bluebox image create [uuid]
-knife bluebox image delete [UUID]
-knife bluebox image list
-knife bluebox lb list
-knife bluebox server create [RUN LIST...] (options)
-knife bluebox server delete BLOCK-HOSTNAME
-knife bluebox server list (options)
-```
-
 You will need to run knife from within your chef repo to have the knife.rb config take effect.
+
+## Usage and subcommands
+For a complete list of options for each command, use `knife bluebox SUBCOMMAND ACTION --help`.
+
+### knife bluebox flavor list
+Show available block types and associated UUIDs.
+
+### knife bluebox image \[create|delete|list\] \[options\]
+Manipulate and display stored block images.
+* `knife bluebox create _UUID_` creates a new machine image from the server specified by 
+  `_UUID_`.
+  * `--public` will make the machine image public for other blocks users to deploy from.
+  * `--description` provides a description for the image. Default is machine hostname and
+    timestamp.
+
+### knife bluebox lb list
+Show list of Blocks Load Balancer applications and each application's load balanced services.
+
+### knife bluebox server create \[RUN LIST...\] (options)
+Create a new block instance.
+
+### knife bluebox server delete HOSTNAME
+Delete block instance specified by _HOSTNAME_.
+
+### knife bluebox server list (options)
+List all blocks currently running on the account.
