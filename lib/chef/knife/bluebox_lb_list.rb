@@ -41,7 +41,8 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        blb.lb_applications.each do |application|
+        blb.lb_applications.each_with_index do |application, index|
+          puts if index != 0
           lines = []
 
           lines << [ 'Application ID', 'Name', 'IP addresses'].map {|s| h.color(s, :bold)}
