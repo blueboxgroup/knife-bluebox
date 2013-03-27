@@ -24,15 +24,15 @@ class Chef
 
       deps do
         require 'fog'
-        require 'highline'
+        require 'tabularize'
         require 'readline'
         require 'chef/json_compat'
       end
 
       banner "knife bluebox lb list"
 
-      def h
-        @highline ||= HighLine.new
+      def bold(str)
+        "\e[1m#{str}\e[0m"
       end
 
       def run
@@ -41,20 +41,19 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        lines = []
-
         blb.lb_applications.each do |application|
-          lines << [ h.color('Application ID', :bold), h.color('Name', :bold), h.color('IPv4 address', :bold), h.color('IPv6 addr', :bold)]
-          lines << [ application.id, application.name, application.ip_v4, application.ip_v6 ]
+          table = Tabularize.new :border_style => :unicode
+          table << [ 'Application ID', 'Name', 'IP addresses' ].map {|s| bold(s)}
+          table << [ application.id, application.name, [ application.ip_v4, application.ip_v6 ].join("\n") ]
+          table.separator!
           unless application.lb_services.empty?
-            lines << [ h.color('Service ID', :bold), h.color('Service Type', :bold), h.color('Port', :bold), h.color('Private', :bold) ]
+            table << [ 'Service ID', 'Service Type', 'Port' ].map {|s| bold(s)}
             application.lb_services.each do |service|
-              lines << [ service.id, service.service_type, service.port.to_s, service.private.to_s ]
+              table << [ service.id, service.service_type, service.port.to_s ]
             end
           end
+          puts table
         end
-        lines.flatten!
-        puts h.list(lines, :columns_across, 4)
 
       end
     end
