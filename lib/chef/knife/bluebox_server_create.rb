@@ -126,9 +126,11 @@ class Chef
 
         puts "#{h.color("Deploying a new Blue Box Block...", :green)}\n\n"
 
+        image_id = Chef::Config[:knife][:image] || config[:image]
+        
         server = bluebox.servers.new(
           :flavor_id => Chef::Config[:knife][:flavor] || config[:flavor],
-          :image_id => Chef::Config[:knife][:image] || config[:image],
+          :image_id => image_id,
           :hostname => config[:chef_node_name],
           :username => Chef::Config[:knife][:username] || config[:username],
           :password => config[:password],
@@ -136,7 +138,12 @@ class Chef
           :lb_applications => Chef::Config[:knife][:load_balancer] || config[:load_balancer]
         )
 
-        response = server.save
+        begin
+          response = server.save
+        rescue Fog::Compute::Bluebox::NotFound
+          puts "#{h.color("Could not locate an image with uuid #{image_id}.\n", :red)}"
+          exit 1
+        end
 
         # Wait for the server to start
         begin
