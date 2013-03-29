@@ -50,7 +50,11 @@ class Chef
         bluebox.servers.each do |server|
           server_list << server.id.to_s
           server_list << server.hostname
-          server_list << server.ips[0]["address"]
+          if server.ips[0] && server.ips[0]["address"]
+            server_list << server.ips[0]["address"]
+          else
+            server_list << ""
+          end
         end
         puts h.list(server_list, :columns_across, 3)
 
