@@ -51,6 +51,12 @@ class Chef
         :description => "The image of the server",
         :default => "a8f05200-7638-47d1-8282-2474ef57c4c3"
 
+      option :location,
+        :short => "-L LOCATION",
+        :long => "--location LOCATION",
+        :description => "The location UUID of the server",
+        :default => "37c2bd9a-3e81-46c9-b6e2-db44a25cc675"
+
       option :username,
         :short => "-U KEY",
         :long => "--username username",
@@ -127,10 +133,12 @@ class Chef
         puts "#{h.color("Deploying a new Blue Box Block...", :green)}\n\n"
 
         image_id = Chef::Config[:knife][:image] || config[:image]
+        location_id = Chef::Config[:knife][:location] || config[:location]
         
         server = bluebox.servers.new(
           :flavor_id => Chef::Config[:knife][:flavor] || config[:flavor],
           :image_id => image_id,
+          :location_id => location_id,
           :hostname => config[:chef_node_name],
           :username => Chef::Config[:knife][:username] || config[:username],
           :password => config[:password],
