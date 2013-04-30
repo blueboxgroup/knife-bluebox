@@ -51,3 +51,6 @@ Delete block instance specified by _HOSTNAME_.
 
 ### knife bluebox server list (options)
 List all blocks currently running on the account.
+
+### knife bluebox location list (options)
+List possible blocks locations

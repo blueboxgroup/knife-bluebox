@@ -1,3 +1,9 @@
+## 0.8.5 (April 30, 2013)
+
+### New features
+
+* Pull request [#28](https://github.com/blueboxgroup/knife-bluebox/pull/28): Add 'location list' subcommand & support --location on 'server create'. (fnichol)
+
 ## 0.8.4 (March 29, 2013)
 
 ### Bug fixes
