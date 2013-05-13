@@ -1,4 +1,5 @@
 #
+# Author:: Fletcher Nichol (<fnichol@bluebox.net>)
 # Copyright:: Copyright (c) 2013 Blue Box Group
 # License:: Apache License, Version 2.0
 #
