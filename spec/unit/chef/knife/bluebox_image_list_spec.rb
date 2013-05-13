@@ -17,10 +17,10 @@
 #
 
 require File.expand_path('../../../../spec_helper', __FILE__)
-require 'chef/knife/bluebox_images_list'
+require 'chef/knife/bluebox_image_list'
 require 'fog'
 
-describe Chef::Knife::BlueboxImagesList do
+describe Chef::Knife::BlueboxImageList do
 
   described_class.load_deps
 
