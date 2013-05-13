@@ -16,14 +16,15 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
+require 'chef/knife/bluebox_base'
 
 class Chef
   class Knife
     class BlueboxServerCreate < Knife
 
+      include Chef::Knife::BlueboxBase
+
       deps do
-        require 'fog'
         require 'readline'
         require 'highline'
         require 'net/ssh/multi'

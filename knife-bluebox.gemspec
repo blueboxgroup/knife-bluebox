@@ -18,5 +18,8 @@ Gem::Specification.new do |s|
   s.add_dependency "highline", '~> 1.6.9'
   s.require_path = 'lib'
   s.files = %w(LICENSE README.md) + Dir.glob("lib/**/*")
-end
 
+  s.add_development_dependency "rspec", "~> 2.10"
+  s.add_development_dependency "guard-rspec"
+  s.add_development_dependency "simplecov"
+end

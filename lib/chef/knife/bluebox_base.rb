@@ -20,35 +20,23 @@ require 'chef/knife'
 
 class Chef
   class Knife
-    class BlueboxLocationList < Knife
+    module BlueboxBase
 
-      deps do
-        require 'fog'
-        require 'highline'
-        require 'readline'
-        require 'chef/json_compat'
+      def self.included(included_class)
+        included_class.class_eval do
+
+          deps do
+            require 'fog'
+          end
+        end
       end
 
-      banner "knife bluebox location list"
-
-      def h
-        @highline ||= HighLine.new
-      end
-
-      def run
-        bluebox = Fog::Compute::Bluebox.new(
+      def bluebox_connection
+        @bluebox_connection ||= Fog::Compute.new(
+          :provider => :bluebox,
           :bluebox_customer_id => Chef::Config[:knife][:bluebox_customer_id],
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
-
-        location_list = [ h.color('ID', :bold), h.color('Description', :bold) ]
-
-        bluebox.locations.each do |location|
-          location_list << location.id.to_s
-          location_list << location.description
-        end
-        puts h.list(location_list, :columns_across, 2)
-
       end
     end
   end
