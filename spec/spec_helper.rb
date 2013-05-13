@@ -17,10 +17,16 @@
 #
 
 require 'simplecov'
-SimpleCov.start do
-  add_group 'Library', 'lib'
-  add_group 'Specs', 'spec'
+SimpleCov.adapters.define 'gem' do
+  command_name 'Specs'
+
+  add_filter '.gem/'
+  add_filter '/spec/'
+  add_filter '/lib/vendor/'
+
+  add_group 'Libraries', '/lib/'
 end
+SimpleCov.start 'gem'
 
 module Helpers
 
