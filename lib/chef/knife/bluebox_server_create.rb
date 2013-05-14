@@ -99,6 +99,8 @@ class Chef
         :description => "Amount of time fog should wait before aborting server deployment.",
         :default => 10 * 60
 
+      attr_reader :server
+
       def h
         @highline ||= HighLine.new
       end
@@ -178,6 +180,7 @@ class Chef
 
           else
             print "\n\n#{h.color("BBG Server startup succesful.  Accessible at #{server.hostname}\n", :green)}"
+            @server = server
 
             # Make sure we should be bootstrapping.
             if config[:disable_bootstrap]
