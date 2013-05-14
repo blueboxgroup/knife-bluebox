@@ -199,6 +199,8 @@ class Chef
               bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.hostname
               bootstrap.config[:use_sudo] = true
               bootstrap.config[:distro] = config[:distro]
+              bootstrap.config[:prerelease] = config[:prerelease]
+              bootstrap.config[:bootstrap_version] = config[:bootstrap_version] || Chef::Config[:knife][:bootstrap_version]
               bootstrap.run
               print "\n#{h.color("Finished bootstrapping #{server.hostname}\n\n", :green)}"
             rescue Errno::ECONNREFUSED
