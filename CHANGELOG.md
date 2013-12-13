@@ -1,3 +1,9 @@
+## 0.9 / 2013-12-13
+
+### New Features
+* Rip out highline, use terminal-tables instead
+* add memory and cpu info for 'bluebox server list'
+
 ## 0.8.5 / 2013-04-30
 
 ### New features
