@@ -43,7 +43,7 @@ class Chef
 
         table = Terminal::Table.new do |t|
           
-          t << [ 'ID', 'Hostname', 'IP Address']
+          t << [ 'ID', 'Hostname', 'IP Address', 'Memory', 'CPU']
           t << :separator
           
           bluebox.servers.each do |server|
@@ -62,6 +62,12 @@ class Chef
               else
                 row << ""
               end
+
+              # Memory
+              row << String(server.memory)          
+
+              # Cpu
+              row << String(server.cpu)              
             end
           end
         end
