@@ -23,16 +23,11 @@ class Chef
 
       deps do
         require 'fog'
-        require 'highline'
-        require 'readline'
+        require 'terminal-table'
         require 'chef/json_compat'
       end
 
       banner "knife bluebox location list"
-
-      def h
-        @highline ||= HighLine.new
-      end
 
       def run
         bluebox = Fog::Compute::Bluebox.new(
@@ -40,13 +35,20 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        location_list = [ h.color('ID', :bold), h.color('Description', :bold) ]
+        table = Terminal::Table.new do |t|
 
-        bluebox.locations.each do |location|
-          location_list << location.id.to_s
-          location_list << location.description
+          t << [ 'ID', 'Description']
+          t << :separator
+
+          bluebox.locations.each do |location|
+            t << Array.new.tap do |a|
+              a << location.id.to_s
+              a << location.description
+            end
+          end
         end
-        puts h.list(location_list, :columns_across, 2)
+
+        puts table
 
       end
     end

@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "chef", ">= 0.10.10"
   s.add_dependency "fog", "~> 1.10.0"
-  s.add_dependency "highline", '~> 1.6.9'
+  s.add_runtime_dependency 'terminal-table', '>= 0'  
   s.require_path = 'lib'
   s.files = %w(LICENSE README.md) + Dir.glob("lib/**/*")
 end

@@ -24,15 +24,11 @@ class Chef
 
       deps do
         require 'fog'
-        require 'highline'
+        require 'terminal-table'        
         require 'chef/json_compat'
       end
 
       banner "knife bluebox image list"
-
-      def highline
-        @highline ||= HighLine.new
-      end
 
       def run
         bluebox = Fog::Compute::Bluebox.new(
@@ -42,14 +38,21 @@ class Chef
 
         images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
 
-        image_list = [ highline.color('ID', :bold), highline.color('Name', :bold) ]
+        table = Terminal::Table.new do |t|
 
-        bluebox.images.each do |image|
-          image_list << image.id.to_s
-          image_list << image.description
+          t << [ 'ID', 'Name']
+          t << :separator                  
+
+          bluebox.images.each do |image|
+            t << Array.new.tap do |a|
+              a << image.id.to_s
+              a << image.description
+            end
+          end
         end
-        puts highline.list(image_list, :columns_across, 2)
 
+        puts table
+        
       end
     end
   end
