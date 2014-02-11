@@ -24,16 +24,11 @@ class Chef
 
       deps do
         require 'fog'
-        require 'highline'
-        require 'readline'
+        require 'terminal-table'
         require 'chef/json_compat'
       end
 
       banner "knife bluebox flavor list"
-
-      def h
-        @highline ||= HighLine.new
-      end
 
       def run
         bluebox = Fog::Compute::Bluebox.new(
@@ -41,14 +36,21 @@ class Chef
           :bluebox_api_key => Chef::Config[:knife][:bluebox_api_key]
         )
 
-        flavor_list = [ h.color('ID', :bold), h.color('Description', :bold) ]
+        table = Terminal::Table.new do |t|
 
-        bluebox.flavors.each do |flavor|
-          flavor_list << flavor.id.to_s
-          flavor_list << flavor.description
+          t << [ 'ID', 'Description']
+          t << :separator          
+
+          bluebox.flavors.each do |flavor|
+            t << Array.new.tap do |a|
+              a << flavor.id.to_s
+              a << flavor.description
+            end
+          end
         end
-        puts h.list(flavor_list, :columns_across, 2)
 
+        puts table
+        
       end
     end
   end

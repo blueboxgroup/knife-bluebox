@@ -24,16 +24,12 @@ class Chef
 
       deps do
         require 'fog'
-        require 'highline'
+        require 'terminal-table'
         require 'readline'
         require 'chef/json_compat'
       end
 
       banner "knife bluebox server list (options)"
-
-      def h
-        @highline ||= HighLine.new
-      end
 
       def run
         bluebox = Fog::Compute::Bluebox.new(
@@ -45,18 +41,38 @@ class Chef
         flavors = bluebox.flavors.inject({}) { |h,f| h[f.id] = f.description; h }
         images  = bluebox.images.inject({}) { |h,i| h[i.id] = i.description; h }
 
-        server_list = [ h.color('ID', :bold), h.color('Hostname', :bold), h.color('IP Address', :bold) ]
+        table = Terminal::Table.new do |t|
+          
+          t << [ 'ID', 'Hostname', 'IP Address', 'Memory', 'CPU']
+          t << :separator
+          
+          bluebox.servers.each do |server|
 
-        bluebox.servers.each do |server|
-          server_list << server.id.to_s
-          server_list << server.hostname
-          if server.ips[0] && server.ips[0]["address"]
-            server_list << server.ips[0]["address"]
-          else
-            server_list << ""
+            t << Array.new.tap do |row|
+              
+              # ID
+              row << server.id.to_s
+
+              # Hostname
+              row << server.hostname
+
+              # IP Address
+              if server.ips[0] && server.ips[0]["address"]
+                row << server.ips[0]["address"]
+              else
+                row << ""
+              end
+
+              # Memory
+              row << String(server.memory)          
+
+              # Cpu
+              row << String(server.cpu)              
+            end
           end
         end
-        puts h.list(server_list, :columns_across, 3)
+        
+        puts table
 
       end
     end
