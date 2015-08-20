@@ -87,7 +87,7 @@ class Chef
       option :public_identity_file,
         :short => "-B PUBLIC_IDENTITY_FILE",
         :long => "--public-identity-file PUBLIC_IDENTITY_FILE",
-        :description => "The public SSH identity file used for authentication to new server"      
+        :description => "The public SSH identity file used for authentication to new server"
 
       option :load_balancer,
         :short => "-b LB",
@@ -134,7 +134,7 @@ class Chef
 
         image_id = Chef::Config[:knife][:image] || config[:image]
         location_id = Chef::Config[:knife][:location] || config[:location]
-        
+
         server = bluebox.servers.new(
           :flavor_id => Chef::Config[:knife][:flavor] || config[:flavor],
           :image_id => image_id,
@@ -157,7 +157,11 @@ class Chef
         begin
 
           # Make sure we could properly queue the server for creation on BBG.
-          raise Fog::Compute::Bluebox::BlockInstantiationError if server.state != "queued"
+          #
+          unless %w(queued building).include?(server.state)
+            raise Fog::Compute::Bluebox::BlockInstantiationError
+          end
+
           puts "#{h.color("Hostname", :cyan)}: #{server.hostname}"
           puts "#{h.color("Server Status", :cyan)}: #{server.state.capitalize}"
           puts "#{h.color("Flavor", :cyan)}: #{flavors[server.flavor_id]}"
@@ -174,6 +178,7 @@ class Chef
 
             # The server wasn't started in specified timeout ... Send a destroy call to make sure it doesn't spin up on us later.
             server.destroy
+
             raise Fog::Compute::Bluebox::BlockInstantiationError, "BBG server not available after #{config[:block_startup_timeout]} seconds."
 
           else
